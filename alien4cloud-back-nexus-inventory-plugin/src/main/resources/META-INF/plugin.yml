@@ -1,0 +1,7 @@
+id: alien4cloud-back-nexus-inventory-plugin
+name: Alien4Cloud Backend Nexus Inventory Plugin
+version: ${project.version}
+description: >
+  This plugin provides the backend of the Nexus Inventory Plugin
+configuration_class: org.alien4cloud.inventory.nexus.PluginConfiguration
+
