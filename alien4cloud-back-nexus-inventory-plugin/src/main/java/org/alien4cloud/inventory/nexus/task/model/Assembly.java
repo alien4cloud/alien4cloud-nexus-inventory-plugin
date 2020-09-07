@@ -18,6 +18,8 @@ public class Assembly {
     @JsonProperty("git_path")
     private String gitPath;
 
+    private String name;
+
     private String type;
 
     private String health;

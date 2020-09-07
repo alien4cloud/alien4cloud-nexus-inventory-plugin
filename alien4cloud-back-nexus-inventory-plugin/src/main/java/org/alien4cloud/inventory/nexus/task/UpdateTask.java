@@ -3,10 +3,14 @@ package org.alien4cloud.inventory.nexus.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.inventory.nexus.db.Inventory;
+import org.alien4cloud.inventory.nexus.db.InventoryItem;
+import org.alien4cloud.inventory.nexus.db.InventoryItemType;
+import org.alien4cloud.inventory.nexus.db.InventoryManager;
 import org.alien4cloud.inventory.nexus.rest.RestClient;
 import org.alien4cloud.inventory.nexus.rest.RestException;
 import org.alien4cloud.inventory.nexus.rest.model.AssetItem;
 import org.alien4cloud.inventory.nexus.rest.model.ComponentItem;
+import org.alien4cloud.inventory.nexus.task.model.Assembly;
 import org.alien4cloud.inventory.nexus.task.model.InventoryDescriptor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -47,9 +51,12 @@ public class UpdateTask implements Runnable{
     @Qualifier("yaml")
     private ObjectMapper mapper;
 
+    @Resource
+    private InventoryManager manager;
+
     @Override
     public void run() {
-        Inventory inventory = new Inventory();
+        Inventory.InventoryBuilder builder = Inventory.builder();
 
         log.info("Update TASK BGN");
         try {
@@ -59,12 +66,16 @@ public class UpdateTask implements Runnable{
                   .collect(Collectors.toList());
 
               for (Pair<ComponentItem,AssetItem> pair : items) {
-                  processItem(inventory,pair.getLeft(),pair.getRight());
+                  processItem(builder,pair.getLeft(),pair.getRight());
               }
-      } catch(RestException | IOException e) {
+        } catch(RestException | IOException e) {
           log.error("Cannot update nexus inventory",e);
-      }
-      log.info("Update TASK END");
+        }
+
+        // Commit The inventory
+        manager.setInventory(builder.build());
+
+        log.info("Update TASK END");
     }
 
     private boolean componentPredicate(ComponentItem component) {
@@ -95,13 +106,37 @@ public class UpdateTask implements Runnable{
       return asset.getPath().endsWith(DESCRIPTOR_SUFFIX);
     }
 
-    private void processItem(Inventory inventory,ComponentItem component, AssetItem asset) throws IOException {
+    private void processItem(Inventory.InventoryBuilder builder, ComponentItem component, AssetItem asset) throws IOException {
         HttpUriRequest request = new HttpGet(asset.getDownloadUrl());
 
         try(CloseableHttpResponse response = httpClient.execute(request)) {
             InventoryDescriptor descriptor = mapper.readValue(response.getEntity().getContent(), InventoryDescriptor.class);
+
             log.info("DOWNLOADING {}",asset.getDownloadUrl());
             log.info("DESCRIPTOR={}",descriptor);
+
+            if (descriptor != null && descriptor.getAssembly() != null) {
+                Assembly assembly = descriptor.getAssembly();
+
+                InventoryItemType type = InventoryItemType.fromString(assembly.getType());
+                if (type == null) {
+                    log.warn("Unknown type {} - Skipping {}",assembly.getType(),asset.getDownloadUrl());
+                    return;
+                }
+
+                InventoryItem item = new InventoryItem();
+                item.setName(assembly.getName());
+                item.setGitPath(assembly.getGitPath());
+                item.getVersions().add(assembly.getVersion());
+                item.setType(type);
+                // TODO: find the right value
+                //item.setCu(null);
+
+                builder.merge(item);
+            } else {
+                log.warn("Invalid Nexus inventory - Skipping {}",asset.getDownloadUrl());
+            }
         }
     }
+
 }
