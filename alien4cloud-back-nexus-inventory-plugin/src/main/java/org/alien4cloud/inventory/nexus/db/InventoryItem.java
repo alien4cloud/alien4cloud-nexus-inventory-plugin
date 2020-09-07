@@ -21,4 +21,8 @@ public class InventoryItem {
     private String cu;
 
     private String gitPath;
+
+    public String getId() {
+        return gitPath + "/" + name;
+    }
 }

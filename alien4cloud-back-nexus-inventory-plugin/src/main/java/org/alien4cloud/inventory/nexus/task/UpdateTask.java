@@ -129,8 +129,7 @@ public class UpdateTask implements Runnable{
                 item.setGitPath(assembly.getGitPath());
                 item.getVersions().add(assembly.getVersion());
                 item.setType(type);
-                // TODO: find the right value
-                //item.setCu(null);
+                item.setCu(getCu(assembly.getGitPath()));
 
                 builder.merge(item);
             } else {
@@ -139,4 +138,11 @@ public class UpdateTask implements Runnable{
         }
     }
 
+    private String getCu(String value) {
+        String[] parts = value.split("/");
+        if (parts.length < 3) {
+            return null;
+        }
+        return parts[2];
+    }
 }

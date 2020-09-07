@@ -27,11 +27,9 @@ public class Inventory {
         private final Map<String,InventoryItem> items = new HashMap<>();
 
         public void merge(InventoryItem item) {
-            String key = String.format("%s#%s",item.getGitPath(),item.getName());
-
-            InventoryItem orig = items.get(key);
+            InventoryItem orig = items.get(item.getId());
             if (orig == null) {
-                items.put(key,item);
+                items.put(item.getId(),item);
             } else {
                 orig.getVersions().addAll(item.getVersions());
             }
