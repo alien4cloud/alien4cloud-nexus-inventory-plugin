@@ -1,6 +1,7 @@
 package org.alien4cloud.inventory.nexus.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.inventory.nexus.NexusConfiguration;
 import org.alien4cloud.inventory.nexus.db.Inventory;
@@ -33,11 +34,11 @@ import java.util.stream.Stream;
 public class UpdateTask implements Runnable{
 
     private static final String[] WHITE_LIST = {
-        "org.artemis.cu"
+        InventoryItem.PREFIX
     };
 
     private static final String[] BLACK_LIST = {
-            "org.artemis.cu.schema-stockage"
+            InventoryItem.PREFIX + ".schema-stockage"
     };
 
     private static final String DESCRIPTOR_SUFFIX = "-inventory.yml";
@@ -131,9 +132,9 @@ public class UpdateTask implements Runnable{
                 InventoryItem item = new InventoryItem();
                 item.setName(assembly.getName());
                 item.setGitPath(assembly.getGitPath());
-                item.getVersions().add(assembly.getVersion());
                 item.setType(type);
                 item.setCu(getCu(assembly.getGitPath()));
+                item.getInventoryFiles().put(assembly.getVersion(),asset.getDownloadUrl());
 
                 builder.merge(item);
             } else {

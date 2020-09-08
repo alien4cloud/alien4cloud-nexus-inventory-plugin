@@ -7,18 +7,12 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.inventory.nexus.controller.model.ExportRequest;
 import org.alien4cloud.inventory.nexus.db.InventoryItem;
-import org.alien4cloud.inventory.nexus.db.InventoryItemType;
 import org.alien4cloud.inventory.nexus.db.InventoryManager;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 
 @Slf4j
 @RestController

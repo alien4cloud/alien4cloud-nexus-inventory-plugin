@@ -31,7 +31,7 @@ public class Inventory {
             if (orig == null) {
                 items.put(item.getId(),item);
             } else {
-                orig.getVersions().addAll(item.getVersions());
+                orig.getInventoryFiles().putAll(item.getInventoryFiles());
             }
         }
 
