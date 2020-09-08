@@ -2,6 +2,7 @@ package org.alien4cloud.inventory.nexus.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.inventory.nexus.NexusConfiguration;
 import org.alien4cloud.inventory.nexus.db.Inventory;
 import org.alien4cloud.inventory.nexus.db.InventoryItem;
 import org.alien4cloud.inventory.nexus.db.InventoryItemType;
@@ -53,6 +54,9 @@ public class UpdateTask implements Runnable{
 
     @Resource
     private InventoryManager manager;
+
+    @Resource
+    private NexusConfiguration configuration;
 
     @Override
     public void run() {
@@ -140,9 +144,9 @@ public class UpdateTask implements Runnable{
 
     private String getCu(String value) {
         String[] parts = value.split("/");
-        if (parts.length < 3) {
+        if (parts.length < configuration.getUcPosition()) {
             return null;
         }
-        return parts[2];
+        return parts[configuration.getUcPosition() - 1];
     }
 }

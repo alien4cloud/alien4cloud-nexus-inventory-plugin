@@ -19,4 +19,7 @@ public class NexusConfiguration {
 
     // Refresh Rate in minute
     private  Integer refreshRate;
+
+    // Position of the uc in the git path
+    private Integer ucPosition = 4;
 }
