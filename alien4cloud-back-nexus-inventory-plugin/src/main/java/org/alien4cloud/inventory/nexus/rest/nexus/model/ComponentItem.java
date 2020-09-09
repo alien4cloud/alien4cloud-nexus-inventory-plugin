@@ -1,4 +1,4 @@
-package org.alien4cloud.inventory.nexus.rest.model;
+package org.alien4cloud.inventory.nexus.rest.nexus.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

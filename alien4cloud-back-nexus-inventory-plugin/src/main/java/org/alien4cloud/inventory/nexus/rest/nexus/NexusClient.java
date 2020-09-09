@@ -1,11 +1,12 @@
-package org.alien4cloud.inventory.nexus.rest;
+package org.alien4cloud.inventory.nexus.rest.nexus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.inventory.nexus.NexusConfiguration;
-import org.alien4cloud.inventory.nexus.rest.model.ComponentItem;
-import org.alien4cloud.inventory.nexus.rest.model.ComponentsRequest;
+import org.alien4cloud.inventory.nexus.rest.RestException;
+import org.alien4cloud.inventory.nexus.rest.nexus.model.ComponentItem;
+import org.alien4cloud.inventory.nexus.rest.nexus.model.ComponentsRequest;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class RestClient {
+public class NexusClient {
 
     private static final String COMPONENT_REQUEST = "/service/rest/v1/components?repository=";
 

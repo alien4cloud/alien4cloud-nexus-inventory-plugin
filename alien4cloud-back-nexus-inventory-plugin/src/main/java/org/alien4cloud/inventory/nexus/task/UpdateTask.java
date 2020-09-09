@@ -1,17 +1,16 @@
 package org.alien4cloud.inventory.nexus.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.inventory.nexus.NexusConfiguration;
 import org.alien4cloud.inventory.nexus.db.Inventory;
 import org.alien4cloud.inventory.nexus.db.InventoryItem;
 import org.alien4cloud.inventory.nexus.db.InventoryItemType;
 import org.alien4cloud.inventory.nexus.db.InventoryManager;
-import org.alien4cloud.inventory.nexus.rest.RestClient;
+import org.alien4cloud.inventory.nexus.rest.nexus.NexusClient;
 import org.alien4cloud.inventory.nexus.rest.RestException;
-import org.alien4cloud.inventory.nexus.rest.model.AssetItem;
-import org.alien4cloud.inventory.nexus.rest.model.ComponentItem;
+import org.alien4cloud.inventory.nexus.rest.nexus.model.AssetItem;
+import org.alien4cloud.inventory.nexus.rest.nexus.model.ComponentItem;
 import org.alien4cloud.inventory.nexus.task.model.Assembly;
 import org.alien4cloud.inventory.nexus.task.model.InventoryDescriptor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -44,7 +43,7 @@ public class UpdateTask implements Runnable{
     private static final String DESCRIPTOR_SUFFIX = "-inventory.yml";
 
     @Resource
-    private RestClient restClient;
+    private NexusClient restClient;
 
     @Resource
     private CloseableHttpClient httpClient;

@@ -103,7 +103,12 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
-
+    <dependency>
+      <groupId>alien4cloud</groupId>
+      <artifactId>alien4cloud-security</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <!-- others -->
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -131,12 +136,6 @@
       <version>${project.version}</version>
       <scope>test</scope>
       <classifier>tests</classifier>
-    </dependency>
-    <dependency>
-      <groupId>alien4cloud</groupId>
-      <artifactId>alien4cloud-security</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
