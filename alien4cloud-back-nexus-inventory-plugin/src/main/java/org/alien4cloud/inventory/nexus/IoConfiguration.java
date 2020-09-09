@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "inventory.export")
-public class ExportConfiguration {
+@ConfigurationProperties(prefix = "inventory.io")
+public class IoConfiguration {
 
     // Url of the export API
     String url;

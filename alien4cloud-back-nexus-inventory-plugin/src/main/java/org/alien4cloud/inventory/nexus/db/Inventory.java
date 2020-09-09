@@ -9,15 +9,12 @@ public class Inventory {
     @Getter
     private final Date stamp = new Date();
 
+    @Getter
     private final Map<String,InventoryItem> items;
 
     private Inventory(Map<String,InventoryItem> items) {
         this.items = Collections.unmodifiableMap(items);
     };
-
-    public Collection<InventoryItem> getItems() {
-        return items.values();
-    }
 
     public static InventoryBuilder builder() {
         return new InventoryBuilder();

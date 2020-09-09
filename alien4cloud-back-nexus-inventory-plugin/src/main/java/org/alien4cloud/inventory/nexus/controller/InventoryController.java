@@ -1,10 +1,7 @@
 package org.alien4cloud.inventory.nexus.controller;
 
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.*;
 
-import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.AlienUtils;
 import com.google.common.collect.Lists;
@@ -12,12 +9,14 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.inventory.nexus.controller.model.ExportRequest;
 import org.alien4cloud.inventory.nexus.controller.model.ExportResult;
+import org.alien4cloud.inventory.nexus.controller.model.ItemReference;
+import org.alien4cloud.inventory.nexus.db.Inventory;
 import org.alien4cloud.inventory.nexus.db.InventoryItem;
 import org.alien4cloud.inventory.nexus.db.InventoryManager;
 import org.alien4cloud.inventory.nexus.rest.RestException;
-import org.alien4cloud.inventory.nexus.rest.export.ExportClient;
-import org.alien4cloud.inventory.nexus.rest.export.model.Zip;
-import org.alien4cloud.inventory.nexus.rest.export.model.ZipRequest;
+import org.alien4cloud.inventory.nexus.rest.io.IoClient;
+import org.alien4cloud.inventory.nexus.rest.io.model.Zip;
+import org.alien4cloud.inventory.nexus.rest.io.model.ZipRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,20 +33,44 @@ public class InventoryController {
     InventoryManager manager;
 
     @Resource
-    ExportClient exportClient;
+    IoClient ioClient;
 
     @ApiOperation(value = "Get Nexus Inventory", notes = "Returns the Nexus inventory. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     //@PreAuthorize("isAuthenticated()")
     public RestResponse<Collection<InventoryItem>> get() {
-        return RestResponseBuilder.<Collection<InventoryItem>> builder().data(manager.getInventory().getItems()).build();
+        return RestResponseBuilder.<Collection<InventoryItem>> builder().data(manager.getInventory().getItems().values()).build();
     }
 
     @ApiOperation(value = "Request the export of inventory items.", notes = "Request the export of Nexus inventory Items. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value="/export", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     //@PreAuthorize("isAuthenticated()")
     public RestResponse<Void> doExport(@RequestBody ExportRequest request) {
-        log.info("EXPORT REQUEST: {} ",request);
+        List<String> files = Lists.newArrayList();
+        Inventory inventory = manager.getInventory();
+
+        for (ItemReference ref : request.getItems()) {
+            InventoryItem item = inventory.getItems().get(ref.getId());
+            if (item == null) {
+                RestError error = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Inventory Item not found").build();
+                return RestResponseBuilder.<Void>builder().error(error).build();
+            }
+
+            String inventoryFile = item.getInventoryFiles().get(ref.getVersion());
+            if (inventoryFile == null) {
+                RestError error = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Inventory Item not found").build();
+                return RestResponseBuilder.<Void>builder().error(error).build();
+            }
+
+            files.add(inventoryFile);
+        }
+
+        try {
+            ioClient.export(AuthorizationUtil.getCurrentUser().getUsername(), request.getName(), files);
+        } catch(RestException e) {
+            log.error("Can't fetch list of exports",e);
+            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot submit export.").build()).build();
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -58,7 +81,7 @@ public class InventoryController {
         List<ExportResult> results = Lists.newArrayList();
 
         try {
-            ZipRequest zips = exportClient.get(AuthorizationUtil.getCurrentUser().getUsername());
+            ZipRequest zips = ioClient.get(AuthorizationUtil.getCurrentUser().getUsername());
 
             for (Zip zip : AlienUtils.safe(zips.getZip())) {
                 ExportResult e = new ExportResult();

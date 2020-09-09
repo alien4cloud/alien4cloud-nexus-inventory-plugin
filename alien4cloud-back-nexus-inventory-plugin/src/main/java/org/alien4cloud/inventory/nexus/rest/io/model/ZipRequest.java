@@ -1,4 +1,4 @@
-package org.alien4cloud.inventory.nexus.rest.export.model;
+package org.alien4cloud.inventory.nexus.rest.io.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
