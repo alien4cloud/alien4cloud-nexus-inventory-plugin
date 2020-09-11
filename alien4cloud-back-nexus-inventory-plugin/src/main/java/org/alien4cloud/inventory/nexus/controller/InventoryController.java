@@ -17,10 +17,15 @@ import org.alien4cloud.inventory.nexus.rest.RestException;
 import org.alien4cloud.inventory.nexus.rest.io.IoClient;
 import org.alien4cloud.inventory.nexus.rest.io.model.Zip;
 import org.alien4cloud.inventory.nexus.rest.io.model.ZipRequest;
+import org.apache.http.HttpEntity;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -105,5 +110,25 @@ public class InventoryController {
             log.error("Can't fetch list of exports",e);
             return RestResponseBuilder.<Collection<ExportResult>> builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot get list of all exports.").build()).build();
         }
+    }
+
+    @ApiOperation(value = "Download of an export.", notes = "Download an export. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value="/export/{fileName:.+}", method = RequestMethod.GET)
+    //@PreAuthorize("isAuthenticated()")
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> download(@PathVariable String fileName) {
+        try {
+            HttpEntity entity = ioClient.download(fileName);
+
+            // The HttpResponse is closed when the inputstream is consumed
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s",fileName))
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentLength(entity.getContentLength())
+                    .body(new InputStreamResource(entity.getContent()));
+        } catch(IOException | RestException e) {
+            log.error("Can't download export {}: {}",fileName,e);
+            return ResponseEntity.status(RestErrorCode.UNCATEGORIZED_ERROR.getCode()).body(null);
+       }
     }
 }

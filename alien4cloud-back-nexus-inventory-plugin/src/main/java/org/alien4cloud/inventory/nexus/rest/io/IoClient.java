@@ -7,8 +7,12 @@ import org.alien4cloud.inventory.nexus.IoConfiguration;
 import org.alien4cloud.inventory.nexus.rest.RestException;
 import org.alien4cloud.inventory.nexus.rest.io.model.ExportRequest;
 import org.alien4cloud.inventory.nexus.rest.io.model.ZipRequest;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
@@ -68,10 +73,27 @@ public class IoClient {
                                         throw new RestException("Can't submit export");
                                 }
                         } catch (IOException e) {
-                                e.printStackTrace();
+                                throw new RestException("Can't submit export", e);
                         }
                 } catch (JsonProcessingException | UnsupportedEncodingException e) {
                         throw new RestException("Can't submit export", e);
+                }
+        }
+
+        public HttpEntity download(String filename) throws RestException {
+                HttpUriRequest gr = new HttpGet(configuration.getUrl() + URL_PREFIX + "/file/" + filename);
+
+                log.debug("Downloading on IO: {}",gr.getURI());
+
+                try {
+                        HttpResponse response = httpClient.execute(gr);
+                        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                                throw new RestException("Can't download export");
+                        }
+
+                        return response.getEntity();
+                } catch (IOException e) {
+                        throw new RestException("Can't download export", e);
                 }
         }
 }
