@@ -33,7 +33,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping({ "/rest/inventory/nexus", "/rest/v1/inventory/nexus", "/rest/latest/inventory/nexus" })
+@RequestMapping({ "/rest/alien4cloud-back-nexus-inventory-plugin", "/rest/v1/alien4cloud-back-nexus-inventory-plugin", "/rest/latest/alien4cloud-back-nexus-inventory-plugin" })
 public class InventoryController {
 
     @Resource
