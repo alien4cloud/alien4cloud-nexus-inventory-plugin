@@ -7,16 +7,11 @@ import org.alien4cloud.inventory.nexus.IoConfiguration;
 import org.alien4cloud.inventory.nexus.rest.RestException;
 import org.alien4cloud.inventory.nexus.rest.io.model.ExportRequest;
 import org.alien4cloud.inventory.nexus.rest.io.model.ZipRequest;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
@@ -94,6 +88,18 @@ public class IoClient {
                         return response.getEntity();
                 } catch (IOException e) {
                         throw new RestException("Can't download export", e);
+                }
+        }
+
+        public void delete(String filename) throws RestException {
+                HttpUriRequest dr = new HttpDelete(configuration.getUrl() + URL_PREFIX  + "/" + filename);
+
+                try (CloseableHttpResponse response = httpClient.execute(dr)) {
+                        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                                throw new RestException("Can't delete export");
+                        }
+                } catch(IOException e) {
+                        throw new RestException("Can't delete export", e);
                 }
         }
 }
