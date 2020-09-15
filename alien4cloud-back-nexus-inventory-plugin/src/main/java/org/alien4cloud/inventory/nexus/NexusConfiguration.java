@@ -18,7 +18,7 @@ public class NexusConfiguration {
     private String repository;
 
     // Refresh Rate in minute
-    private  Integer refreshRate;
+    private Integer refreshRate = 60;
 
     // Position of the uc in the git path
     private Integer ucPosition = 4;
