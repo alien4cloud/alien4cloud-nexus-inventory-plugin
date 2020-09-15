@@ -5,6 +5,7 @@ import alien4cloud.rest.model.*;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.AlienUtils;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.alien4cloud.inventory.nexus.rest.RestException;
 import org.alien4cloud.inventory.nexus.rest.io.IoClient;
 import org.alien4cloud.inventory.nexus.rest.io.model.Zip;
 import org.alien4cloud.inventory.nexus.rest.io.model.ZipRequest;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpEntity;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -28,8 +30,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -41,6 +48,8 @@ public class InventoryController {
 
     @Resource
     IoClient ioClient;
+
+    private static final DateTimeFormatter TOKEN_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
     @ApiOperation(value = "Get Nexus Inventory",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,7 +82,7 @@ public class InventoryController {
         }
 
         try {
-            ioClient.export(AuthorizationUtil.getCurrentUser().getUsername(), request.getName(), files);
+            ioClient.export(AuthorizationUtil.getCurrentUser().getUsername(), request.getName() + "_" + TOKEN_FORMATTER.format(LocalDateTime.now()), files);
         } catch (RestException e) {
             log.error("Can't fetch list of exports", e);
             return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot submit export.").build()).build();
@@ -90,21 +99,26 @@ public class InventoryController {
         try {
             ZipRequest zips = ioClient.get(AuthorizationUtil.getCurrentUser().getUsername());
 
+            Set<String> availables = Sets.newHashSet();
             for (Zip zip : AlienUtils.safe(zips.getZip())) {
                 ExportResult e = new ExportResult();
                 e.setDate(zip.getDateCreation());
                 e.setName(zip.getExport());
+                availables.add(FilenameUtils.removeExtension(zip.getExport()));
                 e.setSize(zip.getSize());
                 e.setInProgress(false);
                 results.add(e);
             }
 
             for (Zip zip : AlienUtils.safe(zips.getZipInProgress())) {
-                ExportResult e = new ExportResult();
-                e.setDate(zip.getDateCreation());
-                e.setName(zip.getExport());
-                e.setInProgress(true);
-                results.add(e);
+                // don't add 'in progress' result if an available file with the same basename exists
+                if (!availables.contains(zip.getExport())) {
+                    ExportResult e = new ExportResult();
+                    e.setDate(zip.getDateCreation());
+                    e.setName(zip.getExport());
+                    e.setInProgress(true);
+                    results.add(e);
+                }
             }
 
             return RestResponseBuilder.<Collection<ExportResult>>builder().data(results).build();
