@@ -5,10 +5,10 @@
     <artifactId>alien4cloud-nexus-inventory-plugin</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
-  
-  <artifactId>alien4cloud-back-nexus-inventory-plugin</artifactId>
+
+  <artifactId>alien4cloud-nexus-inventory-backend</artifactId>
   <version>3.0.0-SNAPSHOT</version>
-  <name>Alien 4 Cloud Backend Nexus Inventory Plugin</name>
+  <name>Alien 4 Cloud Nexus Inventory Plugin (Backend)</name>
   <description>Backend of the Nexus Inventory Plugin</description>
 
   <properties>
