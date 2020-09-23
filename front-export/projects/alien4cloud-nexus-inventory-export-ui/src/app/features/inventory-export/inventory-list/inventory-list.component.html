@@ -1,0 +1,21 @@
+
+<!--  <cdk-virtual-scroll-viewport class="example-viewport" itemSize="{{ inventory.length }}">
+    <div *cdkVirtualFor="let item of inventory">
+      <w4c-inventory-item-panel [item]="item" (selected)="addToCart($event)"></w4c-inventory-item-panel>
+    </div>
+  </cdk-virtual-scroll-viewport>-->
+
+<div #itemListContainer fxLayout="column" class="example-viewport w4c-borders" >
+  <div *ngFor="let item of inventory">
+    <w4c-inventory-item-panel [item]="item" (selected)="addToCart($event)"></w4c-inventory-item-panel>
+  </div>
+</div>
+
+
+<!--<div fxLayout="column">
+  <h1>{{ 'test_i18n' | translate }}</h1>
+
+  <div *ngFor="let item of inventory">
+    <w4c-inventory-item-panel [item]="item"></w4c-inventory-item-panel>
+  </div>
+</div>-->

@@ -1,0 +1,93 @@
+<span class="mat-expansion-panel-header-description availableExportsLabel mat-app-background mat-typography">
+    {{ 'nexusInventoryExport.export.list.title' | translate }}{{ availableExportCount && availableExportCount > 0 ? ' (' + availableExportCount + ')' : '' }}
+</span>
+<div class="exportTableContainer w4c-borders" #listExportPanelContainer>
+    <w4c-package-list #listExportPanelComponent
+                      (availableExportCount)="setAvailableExportCount($event)">
+    </w4c-package-list>
+</div>
+<span class="mat-expansion-panel-header-description availableExportsLabel mat-app-background mat-typography">
+    {{ 'nexusInventoryExport.inventory.title' | translate }}
+</span>
+<div fxLayout="column">
+
+    <div fxLayout="row" fxFlex="100%" class="w4c-borders">
+        <div fxLayout="column" fxFlex="50%">
+            <div fxLayout="row" fxFlex="100%" fxLayoutGap="10px" fxLayoutAlign="center center">
+                <mat-icon>search</mat-icon>
+                <mat-form-field fxFlex="50%">
+                    <input matInput [placeholder]="'shared.FilteredSearchBar.SearchFor' | translate"
+                           [formControl]="searchField"
+                           id="filteredSearchInput"
+                           (keydown.enter)="search()" >
+                </mat-form-field>
+            </div>
+            <mat-tab-group>
+                <mat-tab [label]="'nexusInventoryExport.inventory.itemTypes.CAS_USAGE' | translate">
+                    <w4c-inventory-list [inventorySubject$]="inventorySubject$"
+                                        [itemTypeFilter]="'CAS_USAGE'"
+                                        (selected)="addToCart($event)">
+                    </w4c-inventory-list>
+                </mat-tab>
+                <mat-tab [label]="'nexusInventoryExport.inventory.itemTypes.APPLICATION' | translate">
+                    <w4c-inventory-list [inventorySubject$]="inventorySubject$"
+                                        [itemTypeFilter]="'APPLICATION'"
+                                        (selected)="addToCart($event)">
+                    </w4c-inventory-list>
+                </mat-tab>
+                <mat-tab [label]="'nexusInventoryExport.inventory.itemTypes.MODULE' | translate">
+                    <w4c-inventory-list [inventorySubject$]="inventorySubject$"
+                                        [itemTypeFilter]="'MODULE'"
+                                        (selected)="addToCart($event)">
+                    </w4c-inventory-list>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+        <div fxLayout="column" fxFlex="50%">
+            <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="center center">
+                <mat-icon>shopping_cart</mat-icon>
+                <span class="cartCount w4c-title mat-typography" *ngIf="cart.length > 0">{{ cart.length }}</span>
+                <mat-form-field fxFlex="50%">
+                    <input matInput [placeholder]="'nexusInventoryExport.export.name.placeholder' | translate"
+                           [formControl]="nameField"
+                           id="nameInput"
+                           required>
+                </mat-form-field>
+                <button fxFlex="10%"
+                        mat-stroked-button
+                        (click)="cancel()"
+                        [disabled]="cart.length == 0 && !nameField.value"
+                        matTooltip="{{'Global.Cancel' | translate}}">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+                <button fxFlex="10%"
+                        mat-stroked-button
+                        color="primary"
+                        (click)="export()"
+                        [disabled]="cart.length == 0 || !nameField.valid"
+                        matTooltip="{{'nexusInventoryExport.inventory.actions.submit_export' | translate}}">
+                    <mat-icon>check_circle</mat-icon>
+                </button>
+            </div>
+            <div class="nameErrorPanel mat-typography" fxLayoutAlign="center center" >
+                <div *ngIf="(nameField.errors && nameField.dirty && nameField.value) || submitError" class="mat-error" [@error]="'in'">
+                    <span *ngFor="let error of nameField.errors | keyvalue">
+                        {{ error.value | translate }}
+                    </span>
+                    <span *ngIf="submitError">{{ submitError }}</span>
+                </div>
+            </div>
+            <div #cartContainer fxLayout="column" class="example-viewport w4c-borders">
+                <w4c-inventory-item-panel *ngFor="let item of cart"
+                                          [item]="item.item"
+                                          [version]="item.version"
+                                          [isInCart]="'true'"
+                                          (removed)="removeFromCart($event)"
+                                          [@fade]="'in'"
+                                          [@focus]="item.focus"
+                                          [id]="item.getKey()">
+                </w4c-inventory-item-panel>
+            </div>
+        </div>
+    </div>
+</div>

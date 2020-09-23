@@ -7,3 +7,6 @@ target
 .project
 .factorypath
 .classpath
+front-export/dist
+front-export/node
+front-export/node_modules

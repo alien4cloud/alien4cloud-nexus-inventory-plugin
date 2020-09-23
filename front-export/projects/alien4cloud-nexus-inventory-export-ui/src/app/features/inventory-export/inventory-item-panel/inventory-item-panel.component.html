@@ -1,0 +1,45 @@
+<div fxLayout="column" fxFlex="100%" class="w4c-borders" class="inventoryItemComponent mat-app-background mat-card">
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+        <mat-icon fxFlex="10%"
+                  matTooltip="{{ 'nexusInventoryExport.inventory.itemType.' + item.type | translate }}">{{ getItemTypeIcon(item) }}
+        </mat-icon>
+        <div fxFlex>{{ item.name }}</div>
+        <div fxFlex="10%" class="mat-expansion-panel-header-description">{{ version }}</div>
+        <ng-container *ngIf="!isInCart && item.versions.length == 1">
+            <button fxFlex="10%" *ngIf="!isInCart"
+                    mat-button mat-icon-button
+                    (click)="addToCart(version)"
+                    matTooltip="{{'nexusInventoryExport.inventory.actions.add_to_cart' | translate}}">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+        </ng-container>
+        <ng-container *ngIf="!isInCart && item.versions.length > 1">
+            <button fxFlex="10%"
+                    mat-button mat-icon-button
+                    [matMenuTriggerFor]="menu"
+                    matTooltip="{{'nexusInventoryExport.inventory.actions.add_to_cart' | translate}}">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button *ngFor="let v of item.versions" mat-menu-item (click)="addToCart(v)">
+                    <span>{{ v }}</span>
+                </button>
+            </mat-menu>
+        </ng-container>
+        <button fxFlex="10%"
+                *ngIf="isInCart"
+                mat-button mat-icon-button
+                (click)="remove()"
+                matTooltip="{{'nexusInventoryExport.inventory.actions.remove_from_cart' | translate}}">
+            <mat-icon>remove_circle</mat-icon>
+        </button>
+    </div>
+    <div fxLayout="row" fxFlex="100%" fxLayoutAlign="center">
+        <div fxFlex="10%"
+             matTooltip="{{ item.cu }}"
+             class="cuLabel">
+            <i>{{ lodash.truncate(item.cu, {'length': 10}) }}</i>
+        </div>
+        <div fxFlex class="mat-expansion-panel-header-description gitPath">{{ item.gitPath }}</div>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+{
+  "nexusInventoryExport": {
+    "inventory": {
+      "title": "Nouvel export",
+      "itemTypes": {
+        "APPLICATION": "Applications",
+        "MODULE": "Modules",
+        "CAS_USAGE": "Cas d'usage"
+      },
+      "itemType": {
+        "APPLICATION": "Application",
+        "MODULE": "Module",
+        "CAS_USAGE": "Cas d'usage"
+      },
+      "actions": {
+        "add_to_cart": "Ajouter à l'export",
+        "remove_from_cart": "Retirer de l'export",
+        "submit_export": "Soumettre la demande d'export"
+      }
+    },
+    "export": {
+      "name": {
+        "placeholder": "Nommez votre package",
+        "errors": {
+          "OnlyWordsCharacters": "Le nom du package ne doit contenir que des caractères alphanumériques !"
+        }
+      },
+      "list": {
+        "title": "Packages disponibles",
+        "actions": {
+          "delete": "Supprimer",
+          "deleteConfirmationTitle": "Suppression de package exporté",
+          "deleteConfirmationMsg": "Etes-vous certain de vouloir supprimer ce package ?",
+          "download": "Télécharger",
+          "in_progess": "En cours ..."
+        }
+      }
+    }
+  }
+}

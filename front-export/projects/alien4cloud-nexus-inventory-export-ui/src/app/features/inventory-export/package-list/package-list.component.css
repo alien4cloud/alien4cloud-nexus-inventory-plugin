@@ -1,0 +1,24 @@
+.mat-column-actions {
+    flex: none;
+    width: 150px;
+}
+
+/*.mat-row:nth-child(even){
+    background-color:white;
+}
+
+.mat-row:nth-child(odd){
+    background-color:#fafafa;
+}*/
+
+
+/*.mat-icon{
+    height:18px !important;
+    width:18px !important;
+    font-size:18px !important;
+}
+
+.mat-raised-button {
+    width: 10px !important;
+    height: 10px !important;
+}*/

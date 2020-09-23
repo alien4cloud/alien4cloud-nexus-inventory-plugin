@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": [
+      "jasmine",
+      "node"
+    ]
+  },
+  "files": [
+    "projects/alien4cloud-nexus-inventory-export-ui/src/app/test.ts",
+    "projects/alien4cloud-nexus-inventory-export-ui/src/app/polyfills.ts"
+  ],
+  "include": [
+    "projects/alien4cloud-nexus-inventory-export-ui/src/**/*.spec.ts",
+    "projects/alien4cloud-nexus-inventory-export-ui/src/**/*.d.ts"
+  ]
+}
