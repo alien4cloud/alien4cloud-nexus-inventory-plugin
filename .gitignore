@@ -7,6 +7,6 @@ target
 .project
 .factorypath
 .classpath
-front-export/dist
-front-export/node
-front-export/node_modules
+alien4cloud-nexus-inventory-ui-export/dist
+alien4cloud-nexus-inventory-ui-export/node
+alien4cloud-nexus-inventory-ui-export/node_modules

@@ -36,6 +36,7 @@
 	
 	<modules>
 		<module>alien4cloud-back-nexus-inventory-plugin</module>
+        <module>alien4cloud-nexus-inventory-ui-export</module>
 	</modules>
   
 </project>
