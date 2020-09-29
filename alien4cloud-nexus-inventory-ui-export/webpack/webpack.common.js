@@ -72,7 +72,8 @@ module.exports = (options) => ({
             { from: './projects/alien4cloud-nexus-inventory-export-ui/assets/images', to: 'assets/images' },
             { from: './projects/alien4cloud-nexus-inventory-export-ui/assets/styles/built', to: 'assets/styles/built' },
             { from: './projects/alien4cloud-nexus-inventory-export-ui/wizard_addon.json', to: 'wizard_addon.json' },
-            { from: './projects/alien4cloud-nexus-inventory-export-ui/assets/i18n', to: 'assets/i18n' }
+            { from: './projects/alien4cloud-nexus-inventory-export-ui/assets/i18n', to: 'assets/i18n' },
+            { from: './projects/alien4cloud-nexus-inventory-export-ui/i18n', to: 'assets/i18n' }
         ]),
         new HtmlWebpackPlugin({
           template: './projects/alien4cloud-nexus-inventory-export-ui/wizard_addon.html',
