@@ -6,9 +6,13 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.AlienUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.inventory.nexus.SftpConfiguration;
 import org.alien4cloud.inventory.nexus.controller.model.ExportRequest;
 import org.alien4cloud.inventory.nexus.controller.model.ExportResult;
 import org.alien4cloud.inventory.nexus.controller.model.ItemReference;
@@ -19,6 +23,10 @@ import org.alien4cloud.inventory.nexus.rest.RestException;
 import org.alien4cloud.inventory.nexus.rest.io.IoClient;
 import org.alien4cloud.inventory.nexus.rest.io.model.Zip;
 import org.alien4cloud.inventory.nexus.rest.io.model.ZipRequest;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpEntity;
 import org.springframework.core.io.InputStreamResource;
@@ -29,6 +37,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,6 +58,9 @@ public class InventoryController {
 
     @Resource
     IoClient ioClient;
+
+    @Resource
+    SftpConfiguration sftpConf;
 
     private static final DateTimeFormatter TOKEN_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
@@ -158,5 +171,60 @@ public class InventoryController {
             log.error("Can't delete export", e);
             return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot delete export.").build()).build();
         }
+    }
+
+    @ApiOperation(value = "Import a file to SFTP server", authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
+    @RequestMapping(value = "/upload/{category}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    public RestResponse<Void> upload(HttpServletRequest request) {
+       try {
+
+          String[] pathInfo = request.getPathInfo().split("/");
+          // should be /rest/(latest|v1)/alien4cloud-back-nexus-inventory-plugin/upload/{category}
+          String categ = null;
+          if (pathInfo.length > 4) {
+             categ = pathInfo[pathInfo.length - 1];
+             log.info ("Category {}", categ);
+          } else {
+             log.warn("Category not set");
+          }
+
+          ServletFileUpload upload = new ServletFileUpload();
+          FileItemIterator iter = upload.getItemIterator(request);
+          while (iter.hasNext()) {
+             FileItemStream item = iter.next();
+             String name = item.getFieldName();
+             InputStream stream = item.openStream();
+             if (!item.isFormField()) {
+                log.debug("File field " + name + " with file name " +
+                          item.getName() + " detected.");
+
+                JSch jsch = new JSch();
+                if (sftpConf.getKeyfile() != null) {
+                   jsch.addIdentity (sftpConf.getKeyfile());
+                }
+                jsch.setConfig ("StrictHostKeyChecking","no");
+                Session jschSession = jsch.getSession(sftpConf.getUser(), sftpConf.getHost(), sftpConf.getPort());
+                if (sftpConf.getPassword() != null) {
+                   jschSession.setPassword(sftpConf.getPassword());
+                }
+                jschSession.connect();
+                log.debug("Connected to SFTP server");
+
+                ChannelSftp chan = (ChannelSftp) jschSession.openChannel("sftp");
+                chan.connect();
+                log.debug("SFTP channel connected");
+                chan.put (stream, sftpConf.getRemoteDirectory() + "/" + item.getName());
+                log.debug ("End of upload");
+                chan.disconnect();
+                jschSession.disconnect();
+             }
+             stream.close();
+          }    
+       } catch (Exception e) {
+          log.error("Upload error: {}", e.getMessage());
+          return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot upload file.").build()).build();
+       } 
+       return RestResponseBuilder.<Void>builder().build();
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,6 +20,7 @@ import java.util.concurrent.ThreadFactory;
 
 @Configuration
 @EnableConfigurationProperties
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @ComponentScan(basePackages = "org.alien4cloud.inventory.nexus")
 public class PluginConfiguration {
 
