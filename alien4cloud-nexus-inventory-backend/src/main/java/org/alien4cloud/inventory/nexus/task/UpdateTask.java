@@ -45,7 +45,7 @@ public class UpdateTask implements Runnable{
     @Resource
     private NexusClient restClient;
 
-    @Resource
+    @Resource(name="nexus-http-client")
     private CloseableHttpClient httpClient;
 
     @Resource
