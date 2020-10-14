@@ -176,19 +176,9 @@ public class InventoryController {
     @ApiOperation(value = "Import a file to SFTP server", authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
     @RequestMapping(value = "/upload/{category}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
-    public RestResponse<Void> upload(HttpServletRequest request) {
+    public RestResponse<Void> upload(@PathVariable String category, HttpServletRequest request) {
        try {
-
-          String[] pathInfo = request.getPathInfo().split("/");
-          // should be /rest/(latest|v1)/alien4cloud-back-nexus-inventory-plugin/upload/{category}
-          String categ = null;
-          if (pathInfo.length > 4) {
-             categ = pathInfo[pathInfo.length - 1];
-             log.info ("Category {}", categ);
-          } else {
-             log.warn("Category not set");
-          }
-
+          log.info ("Category {}", category);
           ServletFileUpload upload = new ServletFileUpload();
           FileItemIterator iter = upload.getItemIterator(request);
           while (iter.hasNext()) {
