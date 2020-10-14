@@ -32,7 +32,7 @@ public class IoClient {
         @Resource
         private IoConfiguration configuration;
 
-        @Resource
+        @Resource(name="nexus-http-client")
         private CloseableHttpClient httpClient;
 
         @Resource

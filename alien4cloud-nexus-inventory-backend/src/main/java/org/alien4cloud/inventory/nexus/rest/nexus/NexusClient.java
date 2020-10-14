@@ -29,7 +29,7 @@ public class NexusClient {
     @Resource
     private NexusConfiguration configuration;
 
-    @Resource
+    @Resource(name="nexus-http-client")
     private CloseableHttpClient httpClient;
 
     @Resource
