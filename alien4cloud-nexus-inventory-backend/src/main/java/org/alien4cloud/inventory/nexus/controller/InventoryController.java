@@ -34,6 +34,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -47,6 +49,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -174,11 +177,13 @@ public class InventoryController {
     }
 
     @ApiOperation(value = "Import a file to SFTP server", authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
-    @RequestMapping(value = "/upload/{category}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/importClaim/{category}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Void> upload(@PathVariable String category, HttpServletRequest request) {
        try {
-          log.info ("Category {}", category);
+          Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+          log.debug ("User: {}", auth == null ? "<null>" : auth.getName());
+
           ServletFileUpload upload = new ServletFileUpload();
           FileItemIterator iter = upload.getItemIterator(request);
           while (iter.hasNext()) {
@@ -204,7 +209,9 @@ public class InventoryController {
                 ChannelSftp chan = (ChannelSftp) jschSession.openChannel("sftp");
                 chan.connect();
                 log.debug("SFTP channel connected");
-                chan.put (stream, sftpConf.getRemoteDirectory() + "/" + item.getName());
+                String fileName = FilenameUtils.removeExtension(item.getName()) + "_" + UUID.randomUUID() + "." + FilenameUtils.getExtension(item.getName());
+                log.debug ("Generated file name {}", fileName);
+                chan.put (stream, sftpConf.getRemoteDirectories().get(category) + "/" + fileName);
                 log.debug ("End of upload");
                 chan.disconnect();
                 jschSession.disconnect();
@@ -213,7 +220,7 @@ public class InventoryController {
           }    
        } catch (Exception e) {
           log.error("Upload error: {}", e.getMessage());
-          return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot upload file.").build()).build();
+          return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot upload file: " + e.getMessage()).build()).build();
        } 
        return RestResponseBuilder.<Void>builder().build();
     }
