@@ -19,6 +19,8 @@ import org.alien4cloud.inventory.nexus.controller.model.ItemReference;
 import org.alien4cloud.inventory.nexus.db.Inventory;
 import org.alien4cloud.inventory.nexus.db.InventoryItem;
 import org.alien4cloud.inventory.nexus.db.InventoryManager;
+import org.alien4cloud.inventory.nexus.importclaim.ImportDao;
+import org.alien4cloud.inventory.nexus.importclaim.model.*;
 import org.alien4cloud.inventory.nexus.rest.RestException;
 import org.alien4cloud.inventory.nexus.rest.io.IoClient;
 import org.alien4cloud.inventory.nexus.rest.io.model.Zip;
@@ -28,6 +30,7 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.http.HttpEntity;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -64,6 +67,9 @@ public class InventoryController {
 
     @Resource
     SftpConfiguration sftpConf;
+
+    @Resource
+    ImportDao importDao;
 
     private static final DateTimeFormatter TOKEN_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
@@ -176,13 +182,24 @@ public class InventoryController {
         }
     }
 
+    @ApiOperation(value = "Get Import claims list for current user",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
+    @RequestMapping(value = "/importClaim/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    public RestResponse<List<ImportClaim>> listImports() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String user = auth == null ? "<null>" : auth.getName();
+        log.debug ("User: {}", user);
+        return RestResponseBuilder.<List<ImportClaim>>builder().data(importDao.getImportClaims(user)).build();
+    }
+
     @ApiOperation(value = "Import a file to SFTP server", authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
     @RequestMapping(value = "/importClaim/{category}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Void> upload(@PathVariable String category, HttpServletRequest request) {
        try {
           Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-          log.debug ("User: {}", auth == null ? "<null>" : auth.getName());
+          String user = auth == null ? "<null>" : auth.getName();
+          log.debug ("User: {}", user);
 
           ServletFileUpload upload = new ServletFileUpload();
           FileItemIterator iter = upload.getItemIterator(request);
@@ -215,6 +232,10 @@ public class InventoryController {
                 log.debug ("End of upload");
                 chan.disconnect();
                 jschSession.disconnect();
+
+                ImportClaim importClaim = new ImportClaim (fileName, category, user, ImportStatus.Uploaded, null);
+                importDao.save(importClaim);
+
              }
              stream.close();
           }    
@@ -222,6 +243,52 @@ public class InventoryController {
           log.error("Upload error: {}", e.getMessage());
           return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot upload file: " + e.getMessage()).build()).build();
        } 
+       return RestResponseBuilder.<Void>builder().build();
+    }
+
+    @ApiOperation(value = "Delete Import claim",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
+    @RequestMapping(value = "/importClaim/{filename:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    public RestResponse<Void> deleteImport(@PathVariable String filename) {
+       log.debug ("deleting {}", filename);
+       ImportClaim importclaim = importDao.findById(ImportClaim.class, filename);
+       if (importclaim == null) {
+          return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Import claim not found").build()).build();
+       }
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       String user = auth == null ? "<null>" : auth.getName();
+       if (!importclaim.getUser().equals(user)) {
+          return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNAUTHORIZED_ERROR).message("Permission denied").build()).build();
+       }
+       importDao.delete (ImportClaim.class, filename);
+
+       if (importclaim.getStatus().equals(ImportStatus.ValidationError)) {
+          try {
+             JSch jsch = new JSch();
+             if (sftpConf.getKeyfile() != null) {
+                jsch.addIdentity (sftpConf.getKeyfile());
+             }
+             jsch.setConfig ("StrictHostKeyChecking","no");
+             Session jschSession = jsch.getSession(sftpConf.getUser(), sftpConf.getHost(), sftpConf.getPort());
+             if (sftpConf.getPassword() != null) {
+                jschSession.setPassword(sftpConf.getPassword());
+             }
+             jschSession.connect();
+             log.debug("Connected to SFTP server");
+
+             ChannelSftp chan = (ChannelSftp) jschSession.openChannel("sftp");
+             chan.connect();
+             log.debug("SFTP channel connected");
+
+             chan.get (sftpConf.getRemoteDirectories().get(importclaim.getCategory()) + "/" + filename + ".KO", new NullOutputStream());
+             log.debug ("File read.");
+             chan.disconnect();
+             jschSession.disconnect();
+          } catch (Exception e) {
+             log.error ("Can not delete file [{}.KO] from SFTP server: {}", filename, e.getMessage());
+          }
+       }
+
        return RestResponseBuilder.<Void>builder().build();
     }
 }
