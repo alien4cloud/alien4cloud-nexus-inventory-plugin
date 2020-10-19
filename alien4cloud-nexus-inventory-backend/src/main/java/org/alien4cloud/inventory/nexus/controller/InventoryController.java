@@ -196,6 +196,9 @@ public class InventoryController {
     @RequestMapping(value = "/importClaim/{category}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Void> upload(@PathVariable String category, HttpServletRequest request) {
+       Session jschSession = null;
+       ChannelSftp chan = null;
+
        try {
           Authentication auth = SecurityContextHolder.getContext().getAuthentication();
           String user = auth == null ? "<null>" : auth.getName();
@@ -216,22 +219,20 @@ public class InventoryController {
                    jsch.addIdentity (sftpConf.getKeyfile());
                 }
                 jsch.setConfig ("StrictHostKeyChecking","no");
-                Session jschSession = jsch.getSession(sftpConf.getUser(), sftpConf.getHost(), sftpConf.getPort());
+                jschSession = jsch.getSession(sftpConf.getUser(), sftpConf.getHost(), sftpConf.getPort());
                 if (sftpConf.getPassword() != null) {
                    jschSession.setPassword(sftpConf.getPassword());
                 }
                 jschSession.connect();
                 log.debug("Connected to SFTP server");
 
-                ChannelSftp chan = (ChannelSftp) jschSession.openChannel("sftp");
+                chan = (ChannelSftp) jschSession.openChannel("sftp");
                 chan.connect();
                 log.debug("SFTP channel connected");
                 String fileName = FilenameUtils.removeExtension(item.getName()) + "_" + UUID.randomUUID() + "." + FilenameUtils.getExtension(item.getName());
                 log.debug ("Generated file name {}", fileName);
                 chan.put (stream, sftpConf.getRemoteDirectories().get(category) + "/" + fileName);
                 log.debug ("End of upload");
-                chan.disconnect();
-                jschSession.disconnect();
 
                 ImportClaim importClaim = new ImportClaim (fileName, category, user, ImportStatus.Uploaded, null);
                 importDao.save(importClaim);
@@ -243,6 +244,14 @@ public class InventoryController {
           log.error("Upload error: {}", e.getMessage());
           return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Cannot upload file: " + e.getMessage()).build()).build();
        } 
+       finally {
+          if ((chan != null) && chan.isConnected()) {
+             chan.disconnect();
+          }
+          if ((jschSession != null) && jschSession.isConnected()) {
+             jschSession.disconnect();
+         }
+       }
        return RestResponseBuilder.<Void>builder().build();
     }
 
@@ -262,6 +271,9 @@ public class InventoryController {
        }
        importDao.delete (ImportClaim.class, filename);
 
+       Session jschSession = null;
+       ChannelSftp chan = null;
+
        if (importclaim.getStatus().equals(ImportStatus.ValidationError)) {
           try {
              JSch jsch = new JSch();
@@ -269,23 +281,31 @@ public class InventoryController {
                 jsch.addIdentity (sftpConf.getKeyfile());
              }
              jsch.setConfig ("StrictHostKeyChecking","no");
-             Session jschSession = jsch.getSession(sftpConf.getUser(), sftpConf.getHost(), sftpConf.getPort());
+             jschSession = jsch.getSession(sftpConf.getUser(), sftpConf.getHost(), sftpConf.getPort());
              if (sftpConf.getPassword() != null) {
                 jschSession.setPassword(sftpConf.getPassword());
              }
              jschSession.connect();
              log.debug("Connected to SFTP server");
 
-             ChannelSftp chan = (ChannelSftp) jschSession.openChannel("sftp");
+             chan = (ChannelSftp) jschSession.openChannel("sftp");
              chan.connect();
              log.debug("SFTP channel connected");
 
              chan.get (sftpConf.getRemoteDirectories().get(importclaim.getCategory()) + "/" + filename + ".KO", new NullOutputStream());
-             log.debug ("File read.");
+             log.debug ("End of file read.");
              chan.disconnect();
              jschSession.disconnect();
           } catch (Exception e) {
              log.error ("Can not delete file [{}.KO] from SFTP server: {}", filename, e.getMessage());
+          }
+          finally {
+             if ((chan != null) && chan.isConnected()) {
+                chan.disconnect();
+             }
+             if ((jschSession != null) && jschSession.isConnected()) {
+                jschSession.disconnect();
+            }
           }
        }
 
