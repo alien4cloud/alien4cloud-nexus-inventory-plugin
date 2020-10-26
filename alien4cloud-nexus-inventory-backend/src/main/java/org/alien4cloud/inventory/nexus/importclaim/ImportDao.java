@@ -20,7 +20,7 @@ public class ImportDao extends ESGenericSearchDAO {
     @PostConstruct
     public void init() {
         try {
-            getMappingBuilder().initialize("org.alien4cloud.inventory.nexus.import.model");
+            getMappingBuilder().initialize("org.alien4cloud.inventory.nexus.importclaim.model");
         } catch (IntrospectionException | IOException e) {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
