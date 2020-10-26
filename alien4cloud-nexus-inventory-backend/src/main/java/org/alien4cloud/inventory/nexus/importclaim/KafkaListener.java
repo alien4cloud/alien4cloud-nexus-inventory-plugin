@@ -3,6 +3,8 @@ package org.alien4cloud.inventory.nexus.importclaim;
 import org.alien4cloud.inventory.nexus.KafkaConfiguration;
 import org.alien4cloud.inventory.nexus.importclaim.ImportDao;
 import org.alien4cloud.inventory.nexus.importclaim.model.ImportClaim;
+import org.alien4cloud.inventory.nexus.importclaim.model.ImportInformation;
+import org.alien4cloud.inventory.nexus.importclaim.model.ImportStatus;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -84,37 +86,48 @@ public class KafkaListener implements Runnable {
     }
 
     private void processMessage (String message) {
-       ImportClaim importClaim = null;
+       log.debug ("Entering processMessage");
+       ImportInformation info = null;
        try {
-          importClaim = (new ObjectMapper()).readValue(message, ImportClaim.class);
+          info = (new ObjectMapper()).readValue(message, ImportInformation.class);
        }
        catch (IOException e) {
           log.error ("Error deserializing [" + message + "]: " + e.getMessage());
           return;
        }
 
-       ImportClaim oldImportClaim = importDao.findById (ImportClaim.class, importClaim.getFileName());
-       if (oldImportClaim == null) {
-         log.error ("ImportClaim with file name {} got from Kafka not found", importClaim.getFileName());
+       ImportClaim claim = importDao.findById (ImportClaim.class, info.getTokenId() + ".zip");
+       if (claim == null) {
+         log.error ("ImportClaim with file name {} got from Kafka not found", info.getTokenId() + ".zip");
          return;
        }
-       boolean modified = false;
-       if ((importClaim.getStatus() != null) &&
-           (importClaim.getStatus() != oldImportClaim.getStatus())) {
-          oldImportClaim.setStatus(importClaim.getStatus());
-          modified = true;
+
+       if ((info.getStatus() == null) || (
+           (!info.getStatus().toUpperCase().equals("OK") &&
+            !info.getStatus().toUpperCase().equals("KO")) )) {
+         log.error ("Information with unknown status {} got from Kafka", info.getStatus());
+         return;
        }
-       if (importClaim.getBody() != null){
-          if (oldImportClaim.getBody() == null) {
-             oldImportClaim.setBody(importClaim.getBody());
+ 
+       log.debug ("Status [{}], information [{}]", info.getStatus(), info.getInformation());
+
+       if ((info.getInformation() == null) || info.getInformation().equals("")) {
+          claim.setBody(null);
+          if (info.getStatus().toUpperCase().equals("OK")) {
+             claim.setStatus(ImportStatus.Importing);
           } else {
-             oldImportClaim.setBody(oldImportClaim.getBody() + importClaim.getBody());
+             claim.setStatus(ImportStatus.ValidationError);
           }
-          modified = true;
+       } else {
+          claim.setBody(info.getInformation().toString());
+          if (info.getStatus().toUpperCase().equals("OK")) {
+             claim.setStatus(ImportStatus.Imported);
+          } else {
+             claim.setStatus(ImportStatus.ImportError);
+          }
        }
-       if (modified) {
-          importDao.save (oldImportClaim);
-       }
+
+       importDao.save (claim);
     }
 
     @PreDestroy
