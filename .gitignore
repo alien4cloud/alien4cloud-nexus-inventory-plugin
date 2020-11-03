@@ -10,3 +10,7 @@ target
 alien4cloud-nexus-inventory-ui-export/dist
 alien4cloud-nexus-inventory-ui-export/node
 alien4cloud-nexus-inventory-ui-export/node_modules
+alien4cloud-nexus-inventory-ui-export/projects/alien4cloud-nexus-inventory-export-ui/assets/i18n
+alien4cloud-nexus-inventory-ui-export/projects/alien4cloud-nexus-inventory-export-ui/assets/styles
+alien4cloud-nexus-inventory-ui-export/projects/alien4cloud-nexus-inventory-export-ui/assets/images
+alien4cloud-nexus-inventory-ui-export

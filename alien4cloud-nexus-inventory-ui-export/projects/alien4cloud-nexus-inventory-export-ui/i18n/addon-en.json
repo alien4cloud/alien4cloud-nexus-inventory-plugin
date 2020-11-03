@@ -1,4 +1,10 @@
 {
+  "Feature": {
+    "nexusInventoryExport": {
+      "label": "Export",
+      "description": "Export some use cases, applications or modules."
+    }
+  },
   "nexusInventoryExport": {
     "inventory": {
       "title": "New export",
