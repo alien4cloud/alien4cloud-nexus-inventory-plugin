@@ -182,6 +182,13 @@ public class InventoryController {
         }
     }
 
+    @ApiOperation(value = "Get Import claim category list",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
+    @RequestMapping(value = "/importClaim/categories", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    public RestResponse<Collection<String>> listImportsCategories() {
+        return RestResponseBuilder.<Collection<String>>builder().data(sftpConf.getRemoteDirectories().keySet()).build();
+    }
+
     @ApiOperation(value = "Get Import claims list for current user",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
     @RequestMapping(value = "/importClaim/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
@@ -256,7 +263,7 @@ public class InventoryController {
     }
 
     @ApiOperation(value = "Delete Import claim",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
-    @RequestMapping(value = "/importClaim/{filename:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/importClaim/{filename:.+}/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Void> deleteImport(@PathVariable String filename) {
        log.debug ("deleting {}", filename);
