@@ -48,11 +48,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -185,8 +181,8 @@ public class InventoryController {
     @ApiOperation(value = "Get Import claim category list",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
     @RequestMapping(value = "/importClaim/categories", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
-    public RestResponse<Collection<String>> listImportsCategories() {
-        return RestResponseBuilder.<Collection<String>>builder().data(sftpConf.getRemoteDirectories().keySet()).build();
+    public RestResponse<Map<String, String>> listImportsCategories() {
+        return RestResponseBuilder.<Map<String, String>>builder().data(sftpConf.getRemoteDirectories()).build();
     }
 
     @ApiOperation(value = "Get Import claims list for current user",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
