@@ -18,6 +18,9 @@ public class SftpConfiguration {
     String user;
     String password;
     String keyfile;
- 
+
+    /**
+     * A map where key is the directory (no space, only word cars) and value the label for end-user.
+     */
     Map<String,String> remoteDirectories;
 }

@@ -264,7 +264,7 @@ public class InventoryController {
     }
 
     @ApiOperation(value = "Delete Import claim",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
-    @RequestMapping(value = "/importClaim/{id}/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/importClaim/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Void> deleteImport(@PathVariable String id) {
        log.debug ("deleting {}", id);
