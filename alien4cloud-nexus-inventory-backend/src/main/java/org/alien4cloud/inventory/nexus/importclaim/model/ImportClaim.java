@@ -22,10 +22,14 @@ public class ImportClaim {
 
     @Id
     @StringField(indexType = IndexType.not_analyzed)
+    private String id;
+
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermFilter
     private String fileName;
 
     @StringField(indexType = IndexType.not_analyzed)
-    private String category;
+    private String remotePath;
 
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter

@@ -35,4 +35,15 @@ public class ImportDao extends ESGenericSearchDAO {
        GetMultipleDataResult<ImportClaim> result = search (ImportClaim.class, null, filters, 10000);
        return Arrays.asList(result.getData());
     }
+
+    public ImportClaim getImportClaimForFile (String fileName) {
+       Map<String,String[]> filter = new HashMap<String,String[]>();
+       filter.put("fileName", new String[]{fileName});
+       GetMultipleDataResult<ImportClaim> result = find (ImportClaim.class, filter, 1);
+       if (result.getTotalResults() == 0) {
+         return null;
+       } else {
+         return result.getData()[0];
+       }
+    }
 }

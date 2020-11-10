@@ -96,12 +96,6 @@ public class KafkaListener implements Runnable {
           return;
        }
 
-       ImportClaim claim = importDao.findById (ImportClaim.class, info.getTokenId() + ".zip");
-       if (claim == null) {
-         log.error ("ImportClaim with file name {} got from Kafka not found", info.getTokenId() + ".zip");
-         return;
-       }
-
        if ((info.getStatus() == null) || (
            (!info.getStatus().toUpperCase().equals("OK") &&
             !info.getStatus().toUpperCase().equals("KO")) )) {
@@ -110,6 +104,12 @@ public class KafkaListener implements Runnable {
        }
  
        log.debug ("Status [{}], information [{}]", info.getStatus(), info.getInformation());
+
+       ImportClaim claim = importDao.getImportClaimForFile(info.getTokenId() + ".zip");
+       if (claim == null) {
+         log.error ("ImportClaim with file name {} got from Kafka not found", info.getTokenId() + ".zip");
+         return;
+       }
 
        if ((info.getInformation() == null) || info.getInformation().equals("")) {
           claim.setBody(null);

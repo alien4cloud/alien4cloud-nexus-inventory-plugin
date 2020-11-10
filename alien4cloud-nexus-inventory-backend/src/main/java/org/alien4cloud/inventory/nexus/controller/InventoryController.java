@@ -48,7 +48,11 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -196,9 +200,9 @@ public class InventoryController {
     }
 
     @ApiOperation(value = "Import a file to SFTP server", authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
-    @RequestMapping(value = "/importClaim/{category}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/importClaim/{remotePath}",method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
-    public RestResponse<Void> upload(@PathVariable String category, HttpServletRequest request) {
+    public RestResponse<Void> upload(@PathVariable String remotePath, HttpServletRequest request) {
        Session jschSession = null;
        ChannelSftp chan = null;
 
@@ -232,12 +236,13 @@ public class InventoryController {
                 chan = (ChannelSftp) jschSession.openChannel("sftp");
                 chan.connect();
                 log.debug("SFTP channel connected");
-                String fileName = FilenameUtils.removeExtension(item.getName()) + "_" + UUID.randomUUID() + "." + FilenameUtils.getExtension(item.getName());
+                String id = UUID.randomUUID().toString();
+                String fileName = FilenameUtils.removeExtension(item.getName()) + "_" + id + "." + FilenameUtils.getExtension(item.getName());
                 log.debug ("Generated file name {}", fileName);
-                chan.put (stream, sftpConf.getRemoteDirectories().get(category) + "/" + fileName);
+                chan.put (stream, remotePath + "/" + fileName);
                 log.debug ("End of upload");
 
-                ImportClaim importClaim = new ImportClaim (fileName, category, user, ImportStatus.Uploaded, null);
+                ImportClaim importClaim = new ImportClaim (id, fileName, remotePath, user, ImportStatus.Uploaded, null);
                 importDao.save(importClaim);
 
              }
@@ -259,11 +264,11 @@ public class InventoryController {
     }
 
     @ApiOperation(value = "Delete Import claim",  authorizations = { @Authorization("ADMIN"), @Authorization("COMPONENTS_MANAGER")})
-    @RequestMapping(value = "/importClaim/{filename:.+}/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/importClaim/{id}/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
-    public RestResponse<Void> deleteImport(@PathVariable String filename) {
-       log.debug ("deleting {}", filename);
-       ImportClaim importclaim = importDao.findById(ImportClaim.class, filename);
+    public RestResponse<Void> deleteImport(@PathVariable String id) {
+       log.debug ("deleting {}", id);
+       ImportClaim importclaim = importDao.findById(ImportClaim.class, id);
        if (importclaim == null) {
           return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Import claim not found").build()).build();
        }
@@ -272,7 +277,8 @@ public class InventoryController {
        if (!importclaim.getUser().equals(user)) {
           return RestResponseBuilder.<Void>builder().error(RestErrorBuilder.builder(RestErrorCode.UNAUTHORIZED_ERROR).message("Permission denied").build()).build();
        }
-       importDao.delete (ImportClaim.class, filename);
+       String filename = importclaim.getRemotePath() + "/" + importclaim.getFileName();
+       importDao.delete (ImportClaim.class, id);
 
        Session jschSession = null;
        ChannelSftp chan = null;
@@ -295,7 +301,7 @@ public class InventoryController {
              chan.connect();
              log.debug("SFTP channel connected");
 
-             chan.get (sftpConf.getRemoteDirectories().get(importclaim.getCategory()) + "/" + filename + ".KO", new NullOutputStream());
+             chan.get (filename + ".KO", new NullOutputStream());
              log.debug ("End of file read.");
              chan.disconnect();
              jschSession.disconnect();
