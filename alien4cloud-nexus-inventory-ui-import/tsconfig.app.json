@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "include": [
+    "projects/alien4cloud-nexus-inventory-ui-import/src/**/*.ts"
+  ],
+  "exclude": [
+    "projects/alien4cloud-nexus-inventory-ui-import/src/test.ts",
+    "projects/alien4cloud-nexus-inventory-ui-import/src/**/*.spec.ts"
+  ]
+}

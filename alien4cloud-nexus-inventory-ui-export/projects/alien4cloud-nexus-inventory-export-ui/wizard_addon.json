@@ -1,5 +1,5 @@
 {
   "id": "nexusInventoryExport",
-  "iconName": "get_app",
+  "iconName": "share",
   "roles": ["COMPONENTS_MANAGER"]
 }

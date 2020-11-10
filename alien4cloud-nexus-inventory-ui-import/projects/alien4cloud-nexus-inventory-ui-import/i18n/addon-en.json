@@ -1,0 +1,35 @@
+{
+  "Feature": {
+    "nexusInventoryImport": {
+      "label": "Import",
+      "description": "Import some use cases, applications or modules."
+    }
+  },
+  "nexusInventoryImport": {
+    "Category": "Category",
+    "ChooseFile": "Choose file",
+    "ChooseDragFile": "Choose or drag file here",
+    "1FileAtATime": "Only one single file at a time please !",
+    "Upload": "Upload",
+    "File": "File",
+    "User": "User",
+    "Status": "Status",
+    "Details": "Details",
+    "Remove": "Remove",
+    "ExpandAll": "Expand All",
+    "CollapseAll": "Collapse All",
+    "ImportStatus": {
+      "Uploading": "Upload in progess",
+      "UploadError": "Upload error",
+      "Uploaded": "Uploaded",
+      "ValidationError": "Validation error",
+      "Importing": "Import in progress",
+      "Imported": "Successfully imported",
+      "ImportError": "Import error"
+    },
+    "deleteConfirmation": {
+      "title": "Delete import",
+      "msg": "Do you confirm you want to delete the import for file {{fileName}} ?"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+
+.mat-table {
+    overflow: auto;
+    max-height: 500px;
+}
+
+.mat-column-actions {
+    flex: 0 0 10%;
+}
+.mat-column-fileName {
+    flex: 0 0 30%;
+}
+.mat-column-status {
+    flex: 0 0 30%;
+}
+
+/*
+.fileover {
+    transform: scale(0.8);
+}
+*/

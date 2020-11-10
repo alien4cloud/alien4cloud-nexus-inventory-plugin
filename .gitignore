@@ -14,3 +14,8 @@ alien4cloud-nexus-inventory-ui-export/projects/alien4cloud-nexus-inventory-expor
 alien4cloud-nexus-inventory-ui-export/projects/alien4cloud-nexus-inventory-export-ui/assets/styles
 alien4cloud-nexus-inventory-ui-export/projects/alien4cloud-nexus-inventory-export-ui/assets/images
 alien4cloud-nexus-inventory-ui-export
+alien4cloud-nexus-inventory-ui-import/node
+alien4cloud-nexus-inventory-ui-import/node_modules
+alien4cloud-nexus-inventory-ui-import/projects/alien4cloud-nexus-inventory-ui-import/assets/i18n
+alien4cloud-nexus-inventory-ui-import/projects/alien4cloud-nexus-inventory-ui-import/assets/styles
+alien4cloud-nexus-inventory-ui-import/projects/alien4cloud-nexus-inventory-ui-import/assets/images

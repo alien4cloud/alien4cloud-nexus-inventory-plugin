@@ -1,0 +1,5 @@
+{
+  "id": "nexusInventoryImport",
+  "iconName": "cloud_upload",
+  "roles": ["COMPONENTS_MANAGER"]
+}

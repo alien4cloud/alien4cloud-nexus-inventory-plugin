@@ -1,0 +1,35 @@
+{
+  "Feature": {
+    "nexusInventoryImport": {
+      "label": "Import",
+      "description": "Importer un/des cas d'usage(s), application(s) ou module(s)."
+    }
+  },
+  "nexusInventoryImport": {
+    "Category": "Catégorie",
+    "ChooseFile": "Choisir un fichier",
+    "ChooseDragFile": "Choisir un fichier (ou glisser/déposer ici)",
+    "1FileAtATime": "Un seul fichier à la fois !",
+    "Upload": "Envoyer",
+    "File": "Fichier",
+    "User": "Utilisateur",
+    "Status": "Statut",
+    "Details": "Détails",
+    "Remove": "Supprimer",
+    "ExpandAll": "Etendre tout",
+    "CollapseAll": "Fermer tout",
+    "ImportStatus": {
+      "Uploading": "Envoi en cours",
+      "UploadError": "Erreur lors de l'envoi",
+      "Uploaded": "Envoyé",
+      "ValidationError": "Erreur de validation",
+      "Importing": "Import en cours",
+      "Imported": "Import effectué",
+      "ImportError": "Erreur d'import"
+    },
+    "deleteConfirmation": {
+      "title": "Supprimer l'import",
+      "msg": "Confirmez-vous que vous souhaitez supprimer l'import pour le fichier {{fileName}} ?"
+    }
+  }
+}
