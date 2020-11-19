@@ -158,6 +158,7 @@ export class ImportMainComponent implements OnInit {
       case ImportStatus.Uploaded:
       case ImportStatus.ValidationError:
       case ImportStatus.Imported:
+      case ImportStatus.ImportError:
         return true;
       default:
         return false;
