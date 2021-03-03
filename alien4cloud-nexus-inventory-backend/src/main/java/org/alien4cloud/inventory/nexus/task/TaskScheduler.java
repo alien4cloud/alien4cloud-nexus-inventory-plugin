@@ -35,7 +35,7 @@ public class TaskScheduler {
     @PostConstruct
     public void init() {
         scheduler.scheduleWithFixedDelay(updateTask,0,configuration.getRefreshRate(), TimeUnit.MINUTES);
-        scheduler.scheduleWithFixedDelay(kafkaListener,0,kafkaConfiguration.getPollDelay(), TimeUnit.MINUTES);
+        scheduler.scheduleWithFixedDelay(kafkaListener,0,kafkaConfiguration.getPollDelay(), TimeUnit.SECONDS);
     }
 }
 
