@@ -5,6 +5,8 @@ export interface ImportClaim {
   user: string;
   body: string;
   status: ImportStatus;
+  submitDate: string;
+  endDate: string;
   progress: number;
 }
 

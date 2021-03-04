@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Properties;
 
 @Slf4j
@@ -117,13 +118,16 @@ public class KafkaListener implements Runnable {
              claim.setStatus(ImportStatus.Importing);
           } else {
              claim.setStatus(ImportStatus.ValidationError);
+             claim.setEndDate(new Date());
           }
        } else {
           claim.setBody(info.getInformation().toString());
           if (info.getStatus().toUpperCase().equals("OK")) {
              claim.setStatus(ImportStatus.Imported);
+             claim.setEndDate(new Date());
           } else {
              claim.setStatus(ImportStatus.ImportError);
+             claim.setEndDate(new Date());
           }
        }
 

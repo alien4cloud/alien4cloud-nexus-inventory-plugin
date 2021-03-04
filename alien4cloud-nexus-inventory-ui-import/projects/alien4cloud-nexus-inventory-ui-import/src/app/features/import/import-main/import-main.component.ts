@@ -28,7 +28,7 @@ export class ImportMainComponent implements OnInit {
   typeList: any = {};
   public selectedType: string;
 
-  displayedColumns = ['fileName', 'category', 'user', 'status', 'actions'];
+  displayedColumns = ['submitDate', 'endDate', 'fileName', 'category', 'user', 'status', 'actions'];
 
   // All the local data (Uploading or UploadError)
   localDataSource : ImportClaim[] = [];
@@ -94,7 +94,7 @@ export class ImportMainComponent implements OnInit {
   upload() {
     const formData = new FormData();
     formData.append('file', this.file);
-    let importClaim: ImportClaim = {id: this.file.name, fileName: this.file.name, status: ImportStatus.Uploading, progress: 0, remotePath: this.selectedType, body: "", user: this.authService.userStatus.username};
+    let importClaim: ImportClaim = {id: this.file.name, fileName: this.file.name, status: ImportStatus.Uploading, progress: 0, remotePath: this.selectedType, body: "", user: this.authService.userStatus.username, submitDate: "", endDate: ""};
     this.localDataSource = [importClaim].concat(this.localDataSource);
     this.updateDatasource();
     this.importService.upload(this.selectedType, formData).pipe(

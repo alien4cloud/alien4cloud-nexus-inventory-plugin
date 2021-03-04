@@ -49,6 +49,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -242,7 +243,7 @@ public class InventoryController {
                 chan.put (stream, remotePath + "/" + fileName);
                 log.debug ("End of upload");
 
-                ImportClaim importClaim = new ImportClaim (id, fileName, remotePath, user, ImportStatus.Uploaded, null);
+                ImportClaim importClaim = new ImportClaim (id, fileName, remotePath, user, ImportStatus.Uploaded, null, new Date(), null);
                 importDao.save(importClaim);
 
              }

@@ -37,6 +37,14 @@
 
     <mat-table #table [dataSource]="dataSource">
 
+        <ng-container matColumnDef="submitDate">
+            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.SubmitDate' | translate }} </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{ element.submitDate | date : 'E MMM d HH:mm:ss y' }} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="endDate">
+            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.EndDate' | translate }} </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{ element.endDate | date : 'E MMM d HH:mm:ss y'}} </mat-cell>
+        </ng-container>
         <ng-container matColumnDef="fileName">
             <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.File' | translate }} </mat-header-cell>
             <mat-cell *matCellDef="let element" matTooltip="{{element.fileName}}"> {{lodash.truncate(element.fileName, {'length': 50})}} </mat-cell>
