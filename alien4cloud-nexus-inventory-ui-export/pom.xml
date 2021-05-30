@@ -5,13 +5,13 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-nexus-inventory-plugin</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.3.0</version>
   </parent>
 
   <artifactId>alien4cloud-nexus-inventory-ui-export</artifactId>
   <name>Alien 4 Cloud Nexus Inventory Plugin (Export UI)</name>
   <description>Frontend for export feature of nexus inventory plugin</description>
-  <version>3.3.0-SNAPSHOT</version>
+  <version>3.3.0</version>
   <packaging>pom</packaging>
 
   <properties>
