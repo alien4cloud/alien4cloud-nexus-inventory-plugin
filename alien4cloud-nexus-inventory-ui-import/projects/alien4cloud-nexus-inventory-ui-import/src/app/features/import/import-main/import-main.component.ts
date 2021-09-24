@@ -61,7 +61,7 @@ export class ImportMainComponent implements OnInit, AfterViewInit {
     this.viewDataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'submitDate': return new Date(item.submitDate);
-        case 'endDate': return new Date(item.endDate);
+        case 'endDate': return ((item.endDate) ? new Date(item.endDate) : new Date());
         case 'category': return this.getCategory(item);
         default: return item[property];
       }
