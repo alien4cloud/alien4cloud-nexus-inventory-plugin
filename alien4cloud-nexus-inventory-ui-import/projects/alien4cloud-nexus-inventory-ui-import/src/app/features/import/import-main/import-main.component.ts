@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {ImportService} from "@app/core/services/import.service";
 import * as _ from "lodash";
 import {HttpErrorResponse, HttpEventType} from "@angular/common/http";
@@ -10,13 +10,15 @@ import {MatDialog} from "@angular/material/dialog";
 import {DetailsDialogComponent} from "@app/features/import/details-dialog/details-dialog.component";
 import {TranslateService} from "@ngx-translate/core";
 import {ToastrService} from "ngx-toastr";
+import { MatSort } from '@angular/material/sort';
+import {MatTableDataSource} from "@angular/material/table";
 
 @Component({
   selector: 'w4c-inmport-main',
   templateUrl: './import-main.component.html',
   styleUrls: ['./import-main.component.scss']
 })
-export class ImportMainComponent implements OnInit {
+export class ImportMainComponent implements OnInit, AfterViewInit {
 
   @ViewChild('fileUpload', {static: false}) fileUpload
 
@@ -29,6 +31,7 @@ export class ImportMainComponent implements OnInit {
   public selectedType: string;
 
   displayedColumns = ['submitDate', 'endDate', 'fileName', 'category', 'user', 'status', 'actions'];
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   // All the local data (Uploading or UploadError)
   localDataSource : ImportClaim[] = [];
@@ -36,6 +39,7 @@ export class ImportMainComponent implements OnInit {
   remoteDataSource : ImportClaim[] = [];
   // Table datasource
   dataSource : ImportClaim[] = [];
+  viewDataSource : MatTableDataSource<ImportClaim> = new MatTableDataSource<ImportClaim>([]);
 
   constructor(
     private importService: ImportService,
@@ -49,6 +53,19 @@ export class ImportMainComponent implements OnInit {
     this.importService.listImportsCategories().subscribe(value => this.typeList = value);
     this.updateDatasource();
     this.fetchRemoteClaims();
+
+  }
+
+  ngAfterViewInit() {
+    this.viewDataSource.sort = this.sort;
+    this.viewDataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'submitDate': return new Date(item.submitDate);
+        case 'endDate': return new Date(item.endDate);
+        case 'category': return this.getCategory(item);
+        default: return item[property];
+      }
+    };
   }
 
   private fetchRemoteClaims() {
@@ -199,5 +216,6 @@ export class ImportMainComponent implements OnInit {
 
   private updateDatasource() {
     this.dataSource = this.localDataSource.concat(this.remoteDataSource);
+    this.viewDataSource.data = this.dataSource;
   }
 }

@@ -15,6 +15,7 @@ import {AppRoutingModule, routingComponents} from './app-routing.module';
 import {NgxWebstorageModule} from 'ngx-webstorage';
 import {APP_BASE_HREF, HashLocationStrategy, LocationStrategy} from "@angular/common";
 import {CookieService} from "ngx-cookie-service";
+import { MatSortModule } from '@angular/material/sort';
 import {
   W4cMaterialModule,
   AuthInterceptor,
@@ -46,6 +47,7 @@ export function createTranslateLoader(http: HttpClient) {
     FormsModule,
     ReactiveFormsModule,
     W4cCommonsModule,
+    MatSortModule,
     NgxWebstorageModule.forRoot({prefix: 'w4c', separator: '-'}),
     TranslateModule.forRoot({
       loader: {
@@ -57,7 +59,8 @@ export function createTranslateLoader(http: HttpClient) {
   ],
   exports: [
     W4cMaterialModule,
-    W4cCommonsModule
+    W4cCommonsModule,
+    MatSortModule
   ],
   providers: [
     OverlayContainer,

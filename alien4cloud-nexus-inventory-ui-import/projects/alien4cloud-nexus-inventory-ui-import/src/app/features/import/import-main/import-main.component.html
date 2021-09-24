@@ -35,30 +35,30 @@
         </button>
     </div>
 
-    <mat-table #table [dataSource]="dataSource">
+    <mat-table #table [dataSource]="viewDataSource" matSort>
 
         <ng-container matColumnDef="submitDate">
-            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.SubmitDate' | translate }} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'nexusInventoryImport.SubmitDate' | translate }} </mat-header-cell>
             <mat-cell *matCellDef="let element"> {{ element.submitDate | date : 'E MMM d HH:mm:ss y' }} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="endDate">
-            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.EndDate' | translate }} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'nexusInventoryImport.EndDate' | translate }} </mat-header-cell>
             <mat-cell *matCellDef="let element"> {{ element.endDate | date : 'E MMM d HH:mm:ss y'}} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="fileName">
-            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.File' | translate }} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'nexusInventoryImport.File' | translate }} </mat-header-cell>
             <mat-cell *matCellDef="let element" matTooltip="{{element.fileName}}"> {{lodash.truncate(element.fileName, {'length': 50})}} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="category">
-            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.Category' | translate }} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'nexusInventoryImport.Category' | translate }} </mat-header-cell>
             <mat-cell *matCellDef="let element"> {{getCategory(element)}} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="user">
-            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.User' | translate }} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'nexusInventoryImport.User' | translate }} </mat-header-cell>
             <mat-cell *matCellDef="let element"> {{element.user}} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="status">
-            <mat-header-cell *matHeaderCellDef> {{ 'nexusInventoryImport.Status' | translate }} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef  mat-sort-header> {{ 'nexusInventoryImport.Status' | translate }} </mat-header-cell>
             <mat-cell *matCellDef="let element">
                 <span *ngIf="element.status != 'Uploading'">{{ 'nexusInventoryImport.ImportStatus.' + element.status | translate }}</span>
                 <mat-progress-bar *ngIf="element.status == 'Uploading'" mode="determinate" value="{{ element.progress }}"

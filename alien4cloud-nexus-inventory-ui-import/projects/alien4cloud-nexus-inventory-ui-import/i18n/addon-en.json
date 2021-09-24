@@ -6,6 +6,8 @@
     }
   },
   "nexusInventoryImport": {
+    "SubmitDate": "Submit date",
+    "EndDate": "End date",
     "Category": "Category",
     "ChooseFile": "Choose file",
     "ChooseDragFile": "Choose or drag file here",
